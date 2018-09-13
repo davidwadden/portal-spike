@@ -37,6 +37,7 @@ dependencies {
     compile('org.springframework.statemachine:spring-statemachine-starter')
 
     runtime('com.h2database:h2')
+    runtime('org.postgresql:postgresql')
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('org.springframework.cloud:spring-cloud-stream-test-support')
