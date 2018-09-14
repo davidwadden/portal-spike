@@ -1,7 +1,9 @@
-package io.pivotal.cnde.portal.spike;
+package io.pivotal.cnde.portal.spike.cohort;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.pivotal.cnde.portal.spike.JobId;
+import io.pivotal.cnde.portal.spike.JobIdGenerator;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

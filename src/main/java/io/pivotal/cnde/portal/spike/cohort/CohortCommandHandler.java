@@ -1,4 +1,4 @@
-package io.pivotal.cnde.portal.spike;
+package io.pivotal.cnde.portal.spike.cohort;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;

@@ -1,4 +1,6 @@
-package io.pivotal.cnde.portal.spike;
+package io.pivotal.cnde.portal.spike.cohort;
+
+import io.pivotal.cnde.portal.spike.JobId;
 
 import java.util.Objects;
 
