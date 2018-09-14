@@ -5,7 +5,19 @@ server:
 
 spring:
   profiles:
-    include: h2
+    include: h2,rabbitmq
+
+---
+
+spring:
+  profiles: h2
+  cloud:
+    stream:
+      bindings:
+        cohort-provision-request:
+          destination: cohort-provision
+        cohort-provision-response:
+          destination: cohort-provision
   rabbitmq:
     host: localhost
     port: 5672
