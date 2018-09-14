@@ -11,36 +11,36 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.SubscribableChannel;
 
 @Configuration
-@EnableBinding(FlowConfig.SomeChannel.class)
+@EnableBinding(FlowConfig.Cohorts.class)
 public class FlowConfig {
 
     @Bean
-    public MessageChannel publishChannel() {
+    public MessageChannel cohortChannel() {
         return MessageChannels.direct().get();
     }
 
     @Bean
-    public IntegrationFlow publishFlow() {
-        return IntegrationFlows.from(publishChannel())
-                .log("publish")
-                .channel(SomeChannel.SOME_CHANNEL)
+    public IntegrationFlow cohortProvisionRequestFlow() {
+        return IntegrationFlows.from(cohortChannel())
+                .log("cohort-provision-request")
+                .channel(Cohorts.PROVISION)
                 .get();
     }
 
     @Bean
-    public IntegrationFlow listenFlow() {
-        return IntegrationFlows.from(SomeChannel.SOME_CHANNEL)
-                .log("listen")
+    public IntegrationFlow cohortProvisionResponseFlow() {
+        return IntegrationFlows.from(Cohorts.PROVISION)
+                .log("cohort-provision-response")
                 .handle(message -> System.out.println(message.getPayload().toString()))
                 .get();
     }
 
-    interface SomeChannel {
+    interface Cohorts {
 
-        String SOME_CHANNEL = "some-channel";
+        String PROVISION = "cohort-provision";
 
-        @Input(SOME_CHANNEL)
-        SubscribableChannel someChannel();
+        @Input(PROVISION)
+        SubscribableChannel provision();
     }
 
 }
