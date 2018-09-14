@@ -12,4 +12,5 @@ public class AppConfig {
     public JobIdGenerator jobIdGenerator() {
         return new JobIdGenerator(new AtomicInteger());
     }
+
 }
