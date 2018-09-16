@@ -42,10 +42,36 @@ public class OrderService {
 
         StateMachine<OrderStates, OrderEvents> machine = restoreState(machineUuid);
 
-        Message<OrderEvents> payEvent = MessageBuilder.withPayload(OrderEvents.PAY)
+        Message<OrderEvents> payEvent = MessageBuilder
+                .withPayload(OrderEvents.PAY)
                 .setHeader("paid", paid)
                 .build();
         machine.sendEvent(payEvent);
+        logger.info("state: {}", machine.getState().getId().name());
+
+        persistState(machine);
+    }
+
+    public void fulfillOrder(UUID machineUuid) {
+
+        StateMachine<OrderStates, OrderEvents> machine = restoreState(machineUuid);
+
+        Message<OrderEvents> fulfillEvent = MessageBuilder
+                .withPayload(OrderEvents.FULFILL)
+                .build();
+        machine.sendEvent(fulfillEvent);
+        logger.info("state: {}", machine.getState().getId().name());
+
+        persistState(machine);
+    }
+
+    public void cancelOrder(UUID machineUuid) {
+        StateMachine<OrderStates, OrderEvents> machine = restoreState(machineUuid);
+
+        Message<OrderEvents> cancelEvent = MessageBuilder
+                .withPayload(OrderEvents.CANCEL)
+                .build();
+        machine.sendEvent(cancelEvent);
         logger.info("state: {}", machine.getState().getId().name());
 
         persistState(machine);

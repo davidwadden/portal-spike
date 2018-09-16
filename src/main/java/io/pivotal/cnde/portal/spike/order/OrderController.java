@@ -52,6 +52,20 @@ public class OrderController {
         return buildLocationUri(UUID.fromString(machineUuid));
     }
 
+    @PostMapping("/{machineUuid}/fulfill")
+    public ResponseEntity<Void> fulfillOrder(@PathVariable String machineUuid) {
+        orderService.fulfillOrder(UUID.fromString(machineUuid));
+
+        return buildLocationUri(UUID.fromString(machineUuid));
+    }
+
+    @PostMapping("/{machineUuid}/cancel")
+    public ResponseEntity<Void> cancelOrder(@PathVariable String machineUuid) {
+        orderService.cancelOrder(UUID.fromString(machineUuid));
+
+        return ResponseEntity.noContent().build();
+    }
+
     private ResponseEntity<Void> buildLocationUri(UUID machineUuid) {
         HashMap<String, Object> uriVariables = new HashMap<String, Object>() {{
             put("machineUuid", machineUuid);

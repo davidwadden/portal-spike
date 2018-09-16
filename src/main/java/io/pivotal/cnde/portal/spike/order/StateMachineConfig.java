@@ -61,6 +61,7 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<OrderState
     public Action<OrderStates, OrderEvents> payAction() {
         return context -> {
             Float paid = context.getMessage().getHeaders().get("paid", Float.class);
+            context.getExtendedState().getVariables().put("paid", paid);
             logger.info("payAction:execute(paid: {})", paid);
         };
     }
