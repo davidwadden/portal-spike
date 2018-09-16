@@ -18,6 +18,10 @@ public class InMemoryStateMachinePersist implements StateMachinePersist<OrderSta
 
     @Override
     public StateMachineContext<OrderStates, OrderEvents> read(UUID contextObj) throws Exception {
-        return storage.get(contextObj);
+        StateMachineContext<OrderStates, OrderEvents> context = storage.get(contextObj);
+        if (context == null) {
+            throw new IllegalArgumentException("Context not found");
+        }
+        return context;
     }
 }

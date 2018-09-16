@@ -2,6 +2,8 @@ package io.pivotal.cnde.portal.spike.order;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.persist.StateMachinePersister;
@@ -24,11 +26,46 @@ public class OrderService {
     }
 
     public StateMachine<OrderStates, OrderEvents> getOrder(UUID machineUuid) {
+        return restoreState(machineUuid);
+    }
+
+    public void createOrder(UUID machineUuid) {
+
+        StateMachine<OrderStates, OrderEvents> machine = factory.getStateMachine(machineUuid);
+        machine.start();
+        machine.getExtendedState().getVariables().put("orderId", "some-order-id");
+
+        persistState(machine);
+    }
+
+    public void payOrder(UUID machineUuid, float paid) {
+
+        StateMachine<OrderStates, OrderEvents> machine = restoreState(machineUuid);
+
+        Message<OrderEvents> payEvent = MessageBuilder.withPayload(OrderEvents.PAY)
+                .setHeader("paid", paid)
+                .build();
+        machine.sendEvent(payEvent);
+        logger.info("state: {}", machine.getState().getId().name());
+
+        persistState(machine);
+    }
+
+    private void persistState(StateMachine<OrderStates, OrderEvents> machine) {
+        try {
+            persister.persist(machine, machine.getUuid());
+            logger.info("persist(id: {}, uuid: {})", machine.getId(), machine.getUuid());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private StateMachine<OrderStates, OrderEvents> restoreState(UUID machineUuid) {
 
         StateMachine<OrderStates, OrderEvents> machine = factory.getStateMachine(machineUuid);
 
         try {
-            persister.restore(machine, machineUuid);
+            persister.restore(machine, machine.getUuid());
             logger.info("restore(id: {}, uuid: {})", machine.getId(), machine.getUuid());
             logger.info("state: {}", machine.getState().getId().name());
         } catch (Exception e) {

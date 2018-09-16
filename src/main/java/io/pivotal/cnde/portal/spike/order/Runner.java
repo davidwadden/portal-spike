@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.persist.StateMachinePersister;
@@ -33,11 +35,18 @@ public class Runner implements ApplicationRunner {
         StateMachine<OrderStates, OrderEvents> machine = factory.getStateMachine(machineUuid);
 
         machine.start();
+        machine.getExtendedState().getVariables().put("orderId", "some-order-id");
+
         logger.info("state: {}", machine.getState().getId().name());
         persister.persist(machine, machine.getUuid());
         logger.info("persist(id: {}, uuid: {})", machine.getId(), machineUuid);
 
-        machine.sendEvent(OrderEvents.PAY);
+        Message<OrderEvents> payEvent = MessageBuilder.withPayload(OrderEvents.PAY)
+                .setHeader("orderId", "some-order-id")
+                .setHeader("paid", 10.00)
+                .build();
+
+        machine.sendEvent(payEvent);
         logger.info("state: {}", machine.getState().getId().name());
         persister.persist(machine, machineUuid);
         logger.info("persist(id: {}, uuid: {})", machine.getId(), machineUuid);
