@@ -18,11 +18,14 @@ public class Runner implements ApplicationRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(Runner.class);
 
+    private final OrderService orderService;
     private final StateMachineFactory<OrderStates, OrderEvents> factory;
     private final StateMachinePersister<OrderStates, OrderEvents, UUID> persister;
 
-    public Runner(StateMachineFactory<OrderStates, OrderEvents> factory,
+    public Runner(OrderService orderService,
+                  StateMachineFactory<OrderStates, OrderEvents> factory,
                   StateMachinePersister<OrderStates, OrderEvents, UUID> persister) {
+        this.orderService = orderService;
         this.factory = factory;
         this.persister = persister;
     }
@@ -32,24 +35,11 @@ public class Runner implements ApplicationRunner {
 
         UUID machineUuid = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
-        StateMachine<OrderStates, OrderEvents> machine = factory.getStateMachine(machineUuid);
+        orderService.createOrder(machineUuid);
 
-        machine.start();
-        machine.getExtendedState().getVariables().put("orderId", "some-order-id");
+        orderService.payOrder(machineUuid, 5.00f);
 
-        logger.info("state: {}", machine.getState().getId().name());
-        persister.persist(machine, machine.getUuid());
-        logger.info("persist(id: {}, uuid: {})", machine.getId(), machineUuid);
-
-        Message<OrderEvents> payEvent = MessageBuilder.withPayload(OrderEvents.PAY)
-                .setHeader("orderId", "some-order-id")
-                .setHeader("paid", 10.00)
-                .build();
-
-        machine.sendEvent(payEvent);
-        logger.info("state: {}", machine.getState().getId().name());
-        persister.persist(machine, machineUuid);
-        logger.info("persist(id: {}, uuid: {})", machine.getId(), machineUuid);
+        StateMachine<OrderStates, OrderEvents> machine = restoreState(machineUuid);
 
         machine.sendEvent(OrderEvents.FULFILL);
         logger.info("state: {}", machine.getState().getId().name());
@@ -58,5 +48,30 @@ public class Runner implements ApplicationRunner {
         persister.restore(restoredMachine, machineUuid);
         logger.info("restore(id: {}, uuid: {})", restoredMachine.getId(), machineUuid);
         logger.info("state: {}", restoredMachine.getState().getId().name());
+    }
+
+    private void persistState(StateMachine<OrderStates, OrderEvents> machine) {
+        try {
+            persister.persist(machine, machine.getUuid());
+            logger.info("persist(id: {}, uuid: {})", machine.getId(), machine.getUuid());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @SuppressWarnings("Duplicates")
+    private StateMachine<OrderStates, OrderEvents> restoreState(UUID machineUuid) {
+
+        StateMachine<OrderStates, OrderEvents> machine = factory.getStateMachine(machineUuid);
+
+        try {
+            persister.restore(machine, machine.getUuid());
+            logger.info("restore(id: {}, uuid: {})", machine.getId(), machine.getUuid());
+            logger.info("state: {}", machine.getState().getId().name());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return machine;
     }
 }

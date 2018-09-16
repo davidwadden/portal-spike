@@ -2,7 +2,10 @@ package io.pivotal.cnde.portal.spike.order;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.statemachine.StateContext;
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -30,7 +33,7 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<OrderState
     @Override
     public void configure(StateMachineTransitionConfigurer<OrderStates, OrderEvents> transitions) throws Exception {
         transitions
-                .withExternal().source(OrderStates.SUBMITTED).target(OrderStates.PAID).event(OrderEvents.PAY)
+                .withExternal().source(OrderStates.SUBMITTED).target(OrderStates.PAID).event(OrderEvents.PAY).action(payAction())
                 .and()
                 .withExternal().source(OrderStates.PAID).target(OrderStates.FULFILLED).event(OrderEvents.FULFILL)
                 .and()
@@ -52,6 +55,14 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<OrderState
         config.withConfiguration()
                 .autoStartup(false)
                 .listener(listener);
+    }
+
+    @Bean
+    public Action<OrderStates, OrderEvents> payAction() {
+        return context -> {
+            Float paid = context.getMessage().getHeaders().get("paid", Float.class);
+            logger.info("payAction:execute(paid: {})", paid);
+        };
     }
 
 }
