@@ -4,10 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
-import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
@@ -17,7 +16,7 @@ import org.springframework.statemachine.state.State;
 
 @Configuration
 @EnableStateMachineFactory
-public class StateMachineConfig extends StateMachineConfigurerAdapter<OrderStates, OrderEvents> {
+public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<OrderStates, OrderEvents> {
 
     private static final Logger logger = LoggerFactory.getLogger(StateMachineConfig.class);
 

@@ -31,7 +31,7 @@ public class OrderService {
 
     public void createOrder(UUID machineUuid) {
 
-        StateMachine<OrderStates, OrderEvents> machine = factory.getStateMachine(machineUuid);
+        StateMachine<OrderStates, OrderEvents> machine = factory.getStateMachine(machineUuid.toString());
         machine.start();
         machine.getExtendedState().getVariables().put("orderId", "some-order-id");
 

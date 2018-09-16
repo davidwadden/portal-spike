@@ -36,6 +36,7 @@ dependencies {
     compile('org.springframework.cloud:spring-cloud-stream')
     compile('org.springframework.cloud:spring-cloud-stream-binder-rabbit')
     compile('org.springframework.statemachine:spring-statemachine-starter')
+    compile('org.springframework.statemachine:spring-statemachine-data-jpa')
 
     runtime('com.h2database:h2')
     runtime('org.postgresql:postgresql')
